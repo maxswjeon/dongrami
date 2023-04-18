@@ -20,8 +20,6 @@ export async function signTransaction(tx: Uint8Array, account: Account) {
 
   const signature = await account.sign(hash);
 
-  console.log(Uint8ArrayToHex(signature));
-
   if (!decodedTx || !isDictionary(decodedTx)) {
     throw new Error('Invalid transaction.');
   }

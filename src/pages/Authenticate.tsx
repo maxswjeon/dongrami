@@ -12,44 +12,22 @@ import {
 import { faFile } from '@fortawesome/free-regular-svg-icons';
 import { faKey } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { FormEvent, useEffect, useRef, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 import { getAccountFromV3 } from 'utils/account';
-import { useKeystore, useMainMutations, useMessage } from '../store/main';
-import { useWorker } from '../store/worker';
-import { readKeyFile } from '../worker/handlers';
+import { useKeystore, useMainMutations } from '../store/main';
 
 export function AuthenticatePage() {
-  const worker = useWorker();
-  const message = useMessage();
   const keystore = useKeystore();
 
   const { setKeystore, setAccount } = useMainMutations();
 
-  const [keyFile, setKeyFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState<string>('');
   const [passphrase, setPassphrase] = useState<string>('');
   const [isLoading, setLoading] = useState<boolean>(false);
 
   const inputFileRef = useRef<HTMLInputElement>(null);
 
   const toast = useToast();
-
-  // Read Key File on Key File Change
-  useEffect(() => readKeyFile(worker, keyFile), [keyFile]);
-
-  // Set Keystore on Worker Message
-  useEffect(() => {
-    if (message?.key === 'KEY_FILE_READ') {
-      setKeystore(message.data.content);
-    }
-
-    if (message?.key === 'ERROR_KEY_FILE_READ') {
-      toast({
-        title: 'Error',
-        description: 'Failed to read key file. Please try again.',
-        status: 'error',
-      });
-    }
-  }, [message]);
 
   const authenticate = async (e: FormEvent) => {
     e.preventDefault();
@@ -58,7 +36,6 @@ export function AuthenticatePage() {
 
     if (!keystore) {
       setLoading(false);
-      setKeyFile(null);
       toast({
         title: 'Error',
         description: 'Failed to read key file. Please try again.',
@@ -103,6 +80,29 @@ export function AuthenticatePage() {
     setLoading(false);
   };
 
+  const onFileLoad = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.currentTarget.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result !== 'string') {
+        return;
+      }
+
+      setFileName(file.name);
+      setKeystore(reader.result);
+      setLoading(false);
+    };
+
+    reader.readAsText(file);
+    setLoading(true);
+  };
+
   return (
     <Flex as="form" gap="3" flexDir="column" onSubmit={authenticate}>
       <FormControl isRequired>
@@ -114,7 +114,7 @@ export function AuthenticatePage() {
           <Input
             type="text"
             readOnly
-            value={keyFile ? keyFile.name : ''}
+            value={fileName}
             placeholder="Select a key file..."
             onClick={() => inputFileRef.current?.click()}
           />
@@ -139,11 +139,7 @@ export function AuthenticatePage() {
         type="file"
         display="none"
         ref={inputFileRef}
-        onChange={(e) => {
-          if (e.target.files && e.target.files.length === 1) {
-            setKeyFile(e.target.files[0]);
-          }
-        }}
+        onChange={onFileLoad}
       />
       <Button
         w="full"

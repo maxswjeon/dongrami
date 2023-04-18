@@ -1,0 +1,13 @@
+Address
+Uint8Array
+string
+number
+Guid
+Currency
+number | null
+boolean
+Map<number number>
+BencodexValue[]
+Fungible | FungibleAssetValue | NonFungible
+Food | FullCostume | HairCostume | EarCostume | EyeCostume | TailCostume | Weapon | Armor | Belt | Necklace | Ring | EquipmentMaterial | FoodMaterial | MonsterPart | NormalMaterial | Hourglass | ApStone | Chest | Title
+Food | FullCostume | HairCostume | EarCostume | EyeCostume | TailCostume | Weapon | Armor | Belt | Necklace | Ring | EquipmentMaterial | FoodMaterial | MonsterPart | NormalMaterial | Hourglass | ApStone | Chest | Title

@@ -4,6 +4,14 @@ export function Uint8ArrayToHex(array: Uint8Array) {
     .join('');
 }
 
+export function Uint8ArrayToBase64(array: Uint8Array) {
+  let binary = '';
+  for (let i = 0; i < array.byteLength; i++) {
+    binary += String.fromCharCode(array[i]);
+  }
+  return window.btoa(binary);
+}
+
 export function HexToUint8Array(hexString: string) {
   hexString = hexString.replace(/^0x/, '');
 

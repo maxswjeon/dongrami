@@ -1,15 +1,12 @@
+import { Account } from 'types/account';
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
-import { WorkerResultMessage } from '../types/message';
 import { Uint8ArrayToHex } from '../utils/Uint8Array';
-import { Account } from 'types/account';
 
 type MainState = {
-  message: WorkerResultMessage | null;
   keystore: string | null;
   publicKey: string | null;
   account: Account | null;
-  setMessage: (message: WorkerResultMessage) => void;
   setKeystore: (keystore: string | null) => void;
   setAccount: (account: Account, publicKey: Uint8Array) => void;
   clear: () => void;
@@ -20,7 +17,6 @@ const store = devtools<MainState>((set) => ({
   keystore: null,
   account: null,
   publicKey: null,
-  setMessage: (message) => set((state) => ({ ...state, message })),
   setKeystore: (keystore) => set((state) => ({ ...state, keystore })),
   setAccount: (account, publicKey) =>
     set((state) => ({
@@ -30,7 +26,6 @@ const store = devtools<MainState>((set) => ({
     })),
   clear: () =>
     set({
-      message: null,
       keystore: null,
       account: null,
       publicKey: null,
@@ -42,7 +37,6 @@ const useMainStore =
     ? create<MainState>()(persist(store, { name: 'main' }))
     : create<MainState>()(store);
 
-export const useMessage = () => useMainStore((state) => state.message);
 export const useKeystore = () => useMainStore((state) => state.keystore);
 export const useAccount = () => useMainStore((state) => state.account);
 export const useAccountState = () =>
@@ -53,6 +47,5 @@ export const useMainMutations = () =>
   useMainStore((state) => ({
     setAccount: state.setAccount,
     setKeystore: state.setKeystore,
-    setMessage: state.setMessage,
     clear: state.clear,
   }));
